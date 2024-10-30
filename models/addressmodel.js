@@ -1,12 +1,11 @@
 import { Sequelize } from "sequelize";
 import db from "../config/Database.js";
-import dotenv from "dotenv"
-dotenv.config()
+import Users from "./usermodel.js";
 
 const { DataTypes } = Sequelize;
 
-const Users = db.define(
-  "users",
+const Addresses = db.define(
+  "addresses",
   {
     uuid: {
       type: DataTypes.STRING,
@@ -17,41 +16,22 @@ const Users = db.define(
       },
       primaryKey: true
     },
-    name: {
+    userUuid: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      references: {
+        model: Users,
+        key: 'uuid'
+      },
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
+    },
+    receiver: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
         notEmpty: true,
         len: [3, 100],
-      },
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: true,
-        isEmail: true,
-      },
-    },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: true,
-      },
-    },
-    role: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: true,
-      },
-    },
-    date_of_birth: {
-      type: DataTypes.DATEONLY,
-      allowNull: false,
-      validate: {
-        notEmpty: true,
       },
     },
     phone: {
@@ -61,16 +41,25 @@ const Users = db.define(
         notEmpty: true,
       },
     },
-    image: {
+    province: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    image_link: {
-      type: DataTypes.VIRTUAL,
-      get() {
-        console.log("Image value: ", this.getDataValue("image"));
-        return `${process.env.APP_API_BASE}/images/user/${this.getDataValue("image")}`;
-      },
+    city: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    district: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    sub_district: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    detail_address: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
   },
   {
@@ -78,4 +67,7 @@ const Users = db.define(
   }
 );
 
-export default Users;
+Users.hasMany(Addresses);
+Addresses.belongsTo(Users, { foreignKey: 'userUuid'});
+
+export default Addresses;
